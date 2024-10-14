@@ -1,31 +1,32 @@
 const express = require("express");
-const mongoose = require("mongoose");
-const bodyParser = require("body-parser");
-const studentRoutes = require("./Routes/StudentRoutes");
-const attendanceRoutes = require("./Routes/attendanceRoutes");
+const dotenv = require("dotenv");
+const connectDB = require("./Config/dbConnection");
+const usersRouter = require("./routes/users");
+const morgan = require("morgan");
+const { swaggerUi, specs } = require('./swagger');
 
+dotenv.config();
+connectDB();
 const app = express();
+const PORT = process.env.PORT;
 
- app.use(bodyParser.json());
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(morgan("dev"));
 
- app.set("view engine", "ejs");
+// Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
- app.set("views", path.join(__dirname, "views"));
+app.use("/", usersRouter);
 
- app.use("/students", studentRoutes);
-app.use("/attendance", attendanceRoutes);
-
-// MongoDB Connection
-mongoose
-  .connect("mongodb://localhost:27017/attendance", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log("MongoDB connected"))
-  .catch((error) => console.log("Error connecting to MongoDB:", error));
-
-// Start server
-const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Swagger UI is available on http://localhost:${PORT}/api-docs`);
 });
+
+
+
+ 
+
+
+ 
